@@ -1,6 +1,6 @@
 LEEMON - SOFTWARE LICENSE AGREEMENT
 
-Copyright (c) 2024 Hugo Argente. All rights reserved.
+Copyright (c) 2024 LEEM UOM. All rights reserved.
 
 TERMS AND CONDITIONS:
 
@@ -16,7 +16,7 @@ TERMS AND CONDITIONS:
    - Use the software for illegal purposes
 
 3. OWNERSHIP
-   All intellectual property rights remain with Hugo Argente.
+   All intellectual property rights remain with LEEM UPM.
    The compiled modules (.pyc) and executable (.exe) are proprietary.
 
 4. WARRANTY DISCLAIMER
@@ -25,4 +25,4 @@ TERMS AND CONDITIONS:
 5. LIMITATION OF LIABILITY
    The author shall not be liable for any damages arising from use.
 
-For support or licensing inquiries: [your-email@example.com]
+For support or licensing inquiries: [hugo.argente25@gmail.com]
