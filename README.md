@@ -80,10 +80,9 @@ python rockets/my_new_rocket/mySimulation.py
 LEEMON_Rocket_Simulator/
 ├── 📄 leemon.py                      # Main interface (import this)
 ├── 📄 README.md
-├── 📄 README.txt
 ├── 📄 LICENSE.txt
 │
-├── 📁 bin/                           # Simulation engine (don't modify)
+├── 📁 build/                           # Simulation engine (don't modify)
 │   └── leemon.exe
 │
 ├── 📁 lib/                           # Core libraries (don't modify)
