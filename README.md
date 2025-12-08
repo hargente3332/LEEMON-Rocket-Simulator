@@ -434,9 +434,10 @@ Add comments in `mySimulation.py`:
 ### Problem: Simulation doesn't run
 
 **Check:**
-1. Is `bin/leemon.exe` present?
+1. Is `build/leemon.exe` present?
 2. Are all paths in `example.txt` correct?
-3. Run with verbose: `sim.quickRun(config, verbose=True)`
+3. Should run without compiling, compileFirst = False
+4. Run with verbose: `sim.quickRun(config, verbose=True)`
 
 ### Problem: Unrealistic results
 
