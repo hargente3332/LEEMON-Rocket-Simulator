@@ -5,6 +5,8 @@ Define ALL parameters here for your rocket simulation
 """
 
 from leemonSim import LEEMONSimulator, randomizeParam # type: ignore
+from leemonSim import FlightAnalyzer, VariabilityAnalyzer # type: ignore
+import os
 from multiprocessing import freeze_support
 
 def main():
@@ -15,7 +17,10 @@ def main():
     # ============================================================================
     # CREATE SIMULATOR
     # ============================================================================
-    sim = LEEMONSimulator()
+    
+    ROOT_DIR = os.getcwd() # This is your Project Root
+
+    sim = LEEMONSimulator(ROOT_DIR)
 
     # ============================================================================
     # DEFINE ALL PARAMETERS
@@ -23,11 +28,11 @@ def main():
 
     config = {}
 
-    config = sim.loadConfigFromFile("rockets/myRocket/example.txt")
+    config = sim.loadConfigFromFile("rockets/viper/viper.txt")
                
     # Wind 
-    config["windSpeed"] = 5.0               
-    config["windAngle"] = 20.0 
+    config["windSpeed"] = 0.0               
+    config["windAngle"] = 0.0 
 
     # ============================================================================
     # LAUNCH CONDITIONS
@@ -39,34 +44,47 @@ def main():
     config["initialPosDown"] = 0.0          # Initial Down position [m] (0 = ground level)
 
     # ============================================================================
-    # QUICK SIMULATION
-    # ============================================================================
- 
-    sim.quickRun(config, outputFile=config["outputFile"])
-
-    # ============================================================================
     # VARIABILITY ANALYSIS WITH PARALLEL PROCESSING
     # ============================================================================
     
     print("\n" + "="*70)
-    print("MY ROCKET - MONTE CARLO ANALYSIS")
+    print("VIPER ROCKET - MONTE CARLO ANALYSIS")
     print("="*70)
-    
+    sim.quickRun(config, outputFile=config["outputFile"])
     # Define parameters to vary
     param_dict = {
-        "emptyMass": randomizeParam(10.0, 0.50, 2),
-        "railAngle": randomizeParam(84.0, 1.0, 5)
+        "massEmpty": [9.0,10.0,11.0,15.0],
+        "railAngle": randomizeParam(84.0, 1.0, 2)
     }
      
     # Run the analysis
     sim.variabilityAnalysis(
         baseConfig=config,
         paramDict=param_dict,
-        compileFirst=False,
+        compileFirst=True,
         verbose=True,
         n_jobs=None  # Use all available cores
     )
     
+    n_jobs = 1
+ # Cargar datos de un solo vuelo
+    analyzer = FlightAnalyzer('rockets/viper/results/viperData.csv')
+    analyzer.plot("altitude","qInf")
+
+ # Crear analizador de variabilidad
+    var_analyzer = VariabilityAnalyzer('rockets/viper/results')
+
+ # Cargar todas las simulaciones que coincidan con el patrón
+    var_analyzer.loadAllSimulations('viperData_*.csv')
+    var_analyzer.printComparisonTable()
+
+    var_analyzer.plotComparison("massEmpty", "apogee", color_param= "railAngle",legend_position = "outside")
+
+
+
+
+
+
 
 
 
