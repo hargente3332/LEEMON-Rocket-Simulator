@@ -1,10 +1,6 @@
 # LEEMON Rocket Simulator 🚀🍋
 
 <p align="center">
-  <img src="docs/leemon_banner.jpg" alt="LEEMON Logo" width="2000"/>
-</p>
-
-<p align="center">
   <strong>Professional Rocket Flight Simulator</strong><br>
   6-DOF Trajectory Analysis | Monte Carlo Simulations | Parallel Processing
 </p>
@@ -217,7 +213,7 @@ config["railAngle"] = 84.0      # [degrees] (90° = vertical)
 
 Place your drag coefficient files in `rockets/your_rocket/data/`:
 
-**CDoff.csv** (motor off):
+**CDoff.csv** (motor off - ballistic phase):
 ```csv
 mach,cd
 0.0,0.45
@@ -228,13 +224,18 @@ mach,cd
 2.0,0.55
 ```
 
-**CDon.csv** (motor on):
+**CDon.csv** (motor on - powered phase):
 ```csv
 mach,cd
 0.0,0.48
 0.5,0.49
-...
+0.8,0.54
+1.0,0.78
+1.5,0.65
+2.0,0.58
 ```
+
+The simulator automatically switches between these curves based on motor status.
 
 ---
 
@@ -336,7 +337,9 @@ analyzer.plotAttitude()  # Roll, pitch, yaw angles
 
 **Step 1: Create Project**
 ```bash
-mkdir -p rockets/hpr3000/{data,results,plots}
+mkdir -p rockets/hpr3000/data
+mkdir -p rockets/hpr3000/results
+mkdir -p rockets/hpr3000/plots
 cp rockets/myRocket/example.txt rockets/hpr3000/
 cp rockets/myRocket/mySimulation.py rockets/hpr3000/
 ```
@@ -345,9 +348,10 @@ cp rockets/myRocket/mySimulation.py rockets/hpr3000/
 ```txt
 diameter = 0.15
 massEmpty = 12.0
+motorFuelMass = 3.0
+# Use totalImpulse and burnTime for automatic thrust calculation
 totalImpulse = 5000.0
 burnTime = 3.5
-motorFuelMass = 3.0
 ```
 
 **Step 3: Run Initial Simulation**
@@ -368,6 +372,8 @@ sim.variabilityAnalysis(config, param_dict)
 
 **Step 5: Analyze Results**
 ```python
+var_analyzer = VariabilityAnalyzer('rockets/hpr3000/results')
+var_analyzer.loadAllSimulations('hpr3000Data_*.csv')
 var_analyzer.plotComparison('railAngle', 'apogee')
 ```
 
@@ -379,7 +385,7 @@ param_dict = {
     "windAngle": [0, 45, 90, 135, 180]
 }
 
-sim.variabilityAnalysis(config, param_dict, n_jobs=8)
+sim.variabilityAnalysis(config, param_dict, n_jobs=None)  # Uses all CPU cores
 ```
 
 ---
