@@ -35,7 +35,7 @@
 cd LEEMON_Rocket_Simulator
 
 # Run the example simulation
-python mySimulation.py
+python rockets/myRocket/mySimulation.py
 ```
 
 **That's it!** You'll see:
