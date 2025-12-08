@@ -1,111 +1,108 @@
 #!/usr/bin/env python3
 """
-LEEMON V2 - Viper Rocket Simulation Example
-Using pre-compiled binaries (no compilation needed!)
-
-This is an EXAMPLE script. You can:
-- Modify parameters in the config dictionary
-- Change rocket configuration (viper.txt)
-- Analyze results
-- Copy this to create new simulations
+VIPER Rocket Simulation - Pre-compiled Distribution
+Ready to run without compilation needed!
 """
 
 import sys
-from pathlib import Path
-
-# Add python modules to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "python"))
+import os
+sys.path.append("python")
 
 from leemonSim import LEEMONSimulator, randomizeParam
 from leemonSim import FlightAnalyzer, VariabilityAnalyzer
-
+import os
+from multiprocessing import freeze_support
 
 def main():
-    """Main simulation function"""
+    """
+    Main function for VIPER simulation
+    All simulation code must be inside this function for Windows multiprocessing
+    """
     
-    # Get distribution root
-    DIST_ROOT = Path(__file__).parent.parent.parent.resolve()
-    
-    print("\n" + "="*70)
-    print("LEEMON V2 - Viper Rocket Simulation")
-    print("="*70)
-    print(f"Distribution root: {DIST_ROOT}\n")
-    
-    # =========================================================================
-    # CREATE SIMULATOR (uses pre-compiled binaries)
-    # =========================================================================
-    
-    sim = LEEMONSimulator(str(DIST_ROOT), use_compiled=True)
-    
-    print(f"Executable: {sim.executable}")
-    print(f"Status: {'Ready' if sim.executable.exists() else 'NOT FOUND'}\n")
-    
-    # =========================================================================
-    # LOAD ROCKET CONFIGURATION
-    # =========================================================================
-    
-    config_file = "rockets/viper/viper.txt"
-    print(f"Loading configuration: {config_file}")
-    
-    config = sim.loadConfigFromFile(config_file)
-    
-    # =========================================================================
-    # MODIFY PARAMETERS (EDIT THESE)
-    # =========================================================================
-    
-    # Environment conditions
-    config["windSpeed"] = 0.0               # Wind speed [m/s]
-    config["windAngle"] = 0.0               # Wind angle [degrees]
-    
-    # Launch conditions
+    # ============================================================================
+    # INITIALIZE SIMULATOR (no compilation needed - uses pre-compiled leemon.exe)
+    # ============================================================================
+    ROOT_DIR = os.getcwd()
+    sim = LEEMONSimulator(ROOT_DIR)
+
+    # ============================================================================
+    # LOAD CONFIGURATION
+    # ============================================================================
+    config = sim.loadConfigFromFile("rockets/viper/viper.txt")
+               
+    # Override specific parameters if needed
+    config["windSpeed"] = 0.0               
+    config["windAngle"] = 0.0 
     config["railLength"] = 6.0              # Launch rail length [m]
-    config["railAngle"] = 84.0              # Launch rail angle [degrees] (90=vertical)
-    config["initialPosDown"] = 0.0          # Initial altitude [m]
-    
-    # Output
+    config["railAngle"] = 84.0              # Launch rail angle [degrees)
+    config["initialPosDown"] = 0.0          # Initial Down position [m]
 
+    # ============================================================================
+    # RUN SINGLE SIMULATION
+    # ============================================================================
+    print("\n" + "="*70)
+    print("VIPER ROCKET - SINGLE FLIGHT SIMULATION")
+    print("="*70)
     
-    
-    # =========================================================================
-    # RUN SIMULATION
-    # =========================================================================
-    
-    print("Running simulation...")
-    print("-" * 70)
-    
-    sim.quickRun(config, outputFile=config["outputFile"])
-    
+    sim.quickRun(config, outputFile="rockets/viper/results/viperData.csv", compileFirst=False)
 
-    # =========================================================================
-    # OPTIONAL: VARIABILITY ANALYSIS (Uncomment to run)
-    # =========================================================================
+    # ============================================================================
+    # RUN VARIABILITY ANALYSIS (Monte Carlo)
+    # ============================================================================
+    print("\n" + "="*70)
+    print("VIPER ROCKET - MONTE CARLO VARIABILITY ANALYSIS")
+    print("="*70)
     
+    # Define parameters to vary
     param_dict = {
-         "massEmpty": [9.0, 10.0, 11.0],
-         "railAngle": randomizeParam(84.0, 1.0, 2)
-     }
+        "massEmpty": [9.0, 10.0, 11.0, 15.0],
+        "railAngle": randomizeParam(84.0, 1.0, 2)
+    }
+     
+    # Run parallel analysis (uses all CPU cores)
     sim.variabilityAnalysis(
-         baseConfig=config,
-         paramDict=param_dict,
-         compileFirst=False,
-         verbose=True,
-         n_jobs=None
-     )
-    
-    # =========================================================================
+        baseConfig=config,
+        paramDict=param_dict,
+        compileFirst=False,  # USE PRE-COMPILED EXECUTABLE
+        verbose=True,
+        n_jobs=None  # Use all available cores
+    )
+
+    # ============================================================================
     # ANALYZE RESULTS
-    # =========================================================================
-
- 
-    var_analyzer = VariabilityAnalyzer('rockets/viper/results')
-
- 
-    var_analyzer.loadAllSimulations('viperData_*.csv')
-
-
-    var_analyzer.plotComparison("massEmpty", "apogee", color_param= "railAngle",legend_position = "outside")
+    # ============================================================================
+    print("\n" + "="*70)
+    print("ANALYZING RESULTS")
+    print("="*70)
     
+    # Load single flight data
+    try:
+        analyzer = FlightAnalyzer('rockets/viper/results/viperData.csv')
+        analyzer.plot("altitude", "qInf")
+        print("✓ Single flight plot generated")
+    except Exception as e:
+        print(f"Warning: Could not plot single flight: {e}")
+
+    # Load variability analysis data
+    try:
+        var_analyzer = VariabilityAnalyzer('rockets/viper/results')
+        var_analyzer.loadAllSimulations('viperData_*.csv')
+        var_analyzer.printComparisonTable()
+        var_analyzer.plotComparison("massEmpty", "apogee", color_param="railAngle", 
+                                   legend_position="outside")
+        print("✓ Variability analysis plots generated")
+    except Exception as e:
+        print(f"Warning: Could not generate analysis plots: {e}")
+
+    print("\n" + "="*70)
+    print("SIMULATION COMPLETE!")
+    print("Results saved to: rockets/viper/results/")
+    print("="*70)
 
 
-if __name__ == "__main__":
+# ============================================================================
+# CRITICAL: Required for Windows multiprocessing
+# ============================================================================
+if __name__ == '__main__':
+    freeze_support()
     main()
