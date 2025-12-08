@@ -6,6 +6,7 @@ Define ALL parameters here for your rocket simulation
 
 from leemonSim import LEEMONSimulator, randomizeParam # type: ignore
 from leemonSim import FlightAnalyzer, VariabilityAnalyzer # type: ignore
+import os
 from multiprocessing import freeze_support
 
 def main():
@@ -16,7 +17,10 @@ def main():
     # ============================================================================
     # CREATE SIMULATOR
     # ============================================================================
-    sim = LEEMONSimulator()
+    
+    ROOT_DIR = os.getcwd() # This is your Project Root
+
+    sim = LEEMONSimulator(ROOT_DIR)
 
     # ============================================================================
     # DEFINE ALL PARAMETERS
@@ -46,7 +50,7 @@ def main():
     print("\n" + "="*70)
     print("VIPER ROCKET - MONTE CARLO ANALYSIS")
     print("="*70)
-    
+    sim.quickRun(config, outputFile=config["outputFile"],compileFirst=False)
     # Define parameters to vary
     param_dict = {
         "massEmpty": [9.0,10.0,11.0,15.0],
@@ -57,18 +61,18 @@ def main():
     sim.variabilityAnalysis(
         baseConfig=config,
         paramDict=param_dict,
-        compileFirst=True,
+        compileFirst=False,
         verbose=True,
         n_jobs=None  # Use all available cores
     )
     
     n_jobs = 1
  # Cargar datos de un solo vuelo
-    analyzer = FlightAnalyzer('results/viperData.csv')
+    analyzer = FlightAnalyzer('rockets/viper/results/viperData.csv')
     analyzer.plot("altitude","qInf")
 
  # Crear analizador de variabilidad
-    var_analyzer = VariabilityAnalyzer('results')
+    var_analyzer = VariabilityAnalyzer('rockets/viper/results')
 
  # Cargar todas las simulaciones que coincidan con el patrón
     var_analyzer.loadAllSimulations('viperData_*.csv')
