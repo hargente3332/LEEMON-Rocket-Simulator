@@ -1,33 +1,112 @@
 #!/usr/bin/env python3
 """
-Full Configuration Simulation with Parallel Processing Support
-Define ALL parameters here for your rocket simulation
+LEEMON V2 - MyRocket Example Simulation
+Using pre-compiled binaries
+
+This is another EXAMPLE. You can:
+- Copy viper/ to create your own rocket
+- Edit configuration file (example.txt)
+- Modify parameters below
+- Run your simulations
 """
 
-from leemonSim import LEEMONSimulator, randomizeParam # type: ignore
-from multiprocessing import freeze_support
+import sys
+from pathlib import Path
+
+# Add python modules to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "python"))
+
+from leemonSim import LEEMONSimulator, randomizeParam
+from leemonSim import FlightAnalyzer
+
 
 def main():
-    """
-    Main function - REQUIRED for Windows multiprocessing
-    All simulation code must be inside this function or protected by if __name__ == '__main__'
-    """
-    # ============================================================================
-    # CREATE SIMULATOR
-    # ============================================================================
-    sim = LEEMONSimulator()
+    """Main simulation function"""
+    
+    # Get distribution root
+    DIST_ROOT = Path(__file__).parent.parent.parent.resolve()
+    
+    print("\n" + "="*70)
+    print("LEEMON V2 - MyRocket Example")
+    print("="*70)
+    print(f"Distribution root: {DIST_ROOT}\n")
+    
+    # =========================================================================
+    # CREATE SIMULATOR (uses pre-compiled binaries)
+    # =========================================================================
+    
+    sim = LEEMONSimulator(str(DIST_ROOT), use_compiled=True)
+    
+    print(f"Executable: {sim.executable}")
+    print(f"Status: {'Ready' if sim.executable.exists() else 'NOT FOUND'}\n")
+    
+    # =========================================================================
+    # LOAD ROCKET CONFIGURATION
+    # =========================================================================
+    
+    config_file = "rockets/myRocket/example.txt"
+    print(f"Loading configuration: {config_file}")
+    
+    config = sim.loadConfigFromFile(config_file)
+    
+    # =========================================================================
+    # MODIFY PARAMETERS (EDIT THESE)
+    # =========================================================================
+    
+    # Environment conditions
+    config["windSpeed"] = 5.0               # Wind speed [m/s]
+    config["windAngle"] = 20.0              # Wind angle [degrees]
+    
+    # Launch conditions
+    config["railLength"] = 6.0              # Launch rail length [m]
+    config["railAngle"] = 82.0              # Launch rail angle [degrees]
+    config["initialPosDown"] = 0.0          # Initial altitude [m]
+    
+    # Output
+    config["outputFile"] = "rockets/myRocket/results/myRocketData.csv"
+    
+    print(f"Wind: {config['windSpeed']} m/s @ {config['windAngle']}°")
+    print(f"Launch: {config['railLength']}m rail @ {config['railAngle']}°")
+    print(f"Output: {config['outputFile']}\n")
+    
+    # =========================================================================
+    # RUN SIMULATION
+    # =========================================================================
+    
+    print("Running simulation...")
+    print("-" * 70)
+    
+    sim.quickRun(config, outputFile=config["outputFile"])
+    
+    print("-" * 70)
+    print("\n[OK] Simulation completed!")
+    print(f"Results saved to: {config['outputFile']}\n")
+    
+    # =========================================================================
+    # ANALYZE RESULTS
+    # =========================================================================
+    
+    print("="*70)
+    print("Flight Data Summary")
+    print("="*70 + "\n")
+    
+    try:
+        analyzer = FlightAnalyzer(config["outputFile"])
+        print(f"Simulation time: {analyzer.df['time'].max():.2f} seconds")
+        print(f"Max altitude: {analyzer.df['altitude'].max():.2f} meters")
+        print(f"Max velocity: {analyzer.df['velocity'].max():.2f} m/s")
+        print(f"Max acceleration: {analyzer.df['acceleration'].max():.2f} m/s²\n")
+        
+    except Exception as e:
+        print(f"Could not load results: {e}\n")
+    
+    print("="*70)
+    print("Done!")
+    print("="*70 + "\n")
 
-    # ============================================================================
-    # DEFINE ALL PARAMETERS
-    # ============================================================================
 
-    config = {}
-
-    config = sim.loadConfigFromFile("rockets/myRocket/example.txt")
-               
-    # Wind 
-    config["windSpeed"] = 5.0               
-    config["windAngle"] = 20.0 
+if __name__ == "__main__":
+    main() 
 
     # ============================================================================
     # LAUNCH CONDITIONS
