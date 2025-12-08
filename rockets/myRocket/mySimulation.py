@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
-LEEMON V2 - Viper Rocket Simulation Example
+LEEMON V2 - Rocket Simulation Example
 Using pre-compiled binaries (no compilation needed!)
 
 This is an EXAMPLE script. You can:
 - Modify parameters in the config dictionary
-- Change rocket configuration (viper.txt)
+- Change rocket configuration (example.txt)
 - Analyze results
 - Copy this to create new simulations
 """
