@@ -3,10 +3,16 @@
 Full Configuration Simulation with Parallel Processing Support
 Define ALL parameters here for your rocket simulation
 """
+import sys
 import os
-from leemonSim import LEEMONSimulator, randomizeParam # type: ignore
-from leemonSim import FlightAnalyzer, VariabilityAnalyzer # type: ignore
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+
+from leemon import Simulator
+from leemon import randomizeParam # type: ignore
+from leemon import Analyzer
+from leemon import VariabilityAnalyzer # type: ignore
 from multiprocessing import freeze_support
+
 
 def main():
     """
@@ -18,7 +24,7 @@ def main():
     # ============================================================================
     ROOT_DIR = os.getcwd() # This is your Project Root
 
-    sim = LEEMONSimulator(ROOT_DIR)
+    sim = Simulator(ROOT_DIR)
 
     # ============================================================================
     # DEFINE ALL PARAMETERS
@@ -71,7 +77,7 @@ def main():
     )
     
     # Cargar datos de un solo vuelo
-    analyzer = FlightAnalyzer('rockets/myRocket/results/myRocketData.csv')
+    analyzer = Analyzer('rockets/myRocket/results/myRocketData.csv')
     analyzer.plot("altitude","qInf")
 
  # Crear analizador de variabilidad
