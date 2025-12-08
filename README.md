@@ -32,7 +32,7 @@
 
 ```bash
 # Navigate to your LEEMON folder
-cd LEEMON_Rocket_Simulator
+cd LEEMON-Rocket-Simulator
 
 # Run the example simulation
 python rockets/myRocket/mySimulation.py
@@ -77,17 +77,15 @@ python rockets/my_new_rocket/mySimulation.py
 ## 📁 Project Structure
 
 ```
-LEEMON_Rocket_Simulator/
-├── 📄 leemon.py                      # Main interface (import this)
+LEEMON-Rocket-Simulator/
 ├── 📄 README.md
 ├── 📄 LICENSE.txt
 │
-├── 📁 build/                           # Simulation engine (don't modify)
+├── 📁 build/                         # Simulation engine (compiled binaries)
 │   └── leemon.exe
 │
-├── 📁 lib/                           # Core libraries (don't modify)
-│   ├── leemonSim.pyc
-│   └── analysisTools.pyc
+├── 📁 python/                        # Python modules
+│   └── __init__.py
 │
 ├── 📁 rockets/                       # YOUR PROJECTS GO HERE
 │   └── myRocket/                     # Example project
@@ -99,9 +97,10 @@ LEEMON_Rocket_Simulator/
 │       ├── results/                  # Simulation outputs (CSV files)
 │       └── plots/                    # Generated plots (PNG files)
 │
+├── 📁 include/                       # C++ headers and Eigen library
+│
 ├── 📁 temp/                          # Temporary files
-└── 📁 docs/                          # Documentation
-    └── leemon_banner.jpg
+└── 📁 .git/                          # Git repository
 ```
 
 ---
@@ -122,7 +121,9 @@ cd rockets/falcon9
 
 ```bash
 # Create project folders
-mkdir -p rockets/my_rocket/{data,results,plots}
+mkdir -p rockets/my_rocket/data
+mkdir -p rockets/my_rocket/results
+mkdir -p rockets/my_rocket/plots
 
 # Copy configuration template
 cp rockets/myRocket/example.txt rockets/my_rocket/
@@ -167,11 +168,8 @@ motorFuelMass = 2.02     # Propellant mass [kg]
 The simulator will calculate constant thrust automatically.
 
 **Option 2: Custom Thrust Curve**
-```txt
-thrustFile = rockets/myRocket/data/Thrust.csv
-```
 
-Create a CSV file:
+Create a `Thrust.csv` file in your rocket's `data/` folder:
 ```csv
 time,thrust
 0.0,0
@@ -179,6 +177,11 @@ time,thrust
 1.0,1200
 2.0,800
 3.0,0
+```
+
+Then reference it in `example.txt`:
+```txt
+thrustFile = rockets/myRocket/data/Thrust.csv
 ```
 
 ### 🪂 Parachute System (Optional)

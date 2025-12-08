@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """
-LEEMON V2 - MyRocket Example Simulation
-Using pre-compiled binaries
+LEEMON V2 - Viper Rocket Simulation Example
+Using pre-compiled binaries (no compilation needed!)
 
-This is another EXAMPLE. You can:
-- Copy viper/ to create your own rocket
-- Edit configuration file (example.txt)
-- Modify parameters below
-- Run your simulations
+This is an EXAMPLE script. You can:
+- Modify parameters in the config dictionary
+- Change rocket configuration (viper.txt)
+- Analyze results
+- Copy this to create new simulations
 """
 
 import sys
@@ -17,7 +17,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "python"))
 
 from leemonSim import LEEMONSimulator, randomizeParam
-from leemonSim import FlightAnalyzer
+from leemonSim import FlightAnalyzer, VariabilityAnalyzer
 
 
 def main():
@@ -26,9 +26,6 @@ def main():
     # Get distribution root
     DIST_ROOT = Path(__file__).parent.parent.parent.resolve()
     
-    print("\n" + "="*70)
-    print("LEEMON V2 - MyRocket Example")
-    print("="*70)
     print(f"Distribution root: {DIST_ROOT}\n")
     
     # =========================================================================
@@ -54,20 +51,15 @@ def main():
     # =========================================================================
     
     # Environment conditions
-    config["windSpeed"] = 5.0               # Wind speed [m/s]
-    config["windAngle"] = 20.0              # Wind angle [degrees]
+    config["windSpeed"] = 0.0               # Wind speed [m/s]
+    config["windAngle"] = 0.0               # Wind angle [degrees]
     
     # Launch conditions
     config["railLength"] = 6.0              # Launch rail length [m]
-    config["railAngle"] = 82.0              # Launch rail angle [degrees]
+    config["railAngle"] = 84.0              # Launch rail angle [degrees] (90=vertical)
     config["initialPosDown"] = 0.0          # Initial altitude [m]
     
-    # Output
-    config["outputFile"] = "rockets/myRocket/results/myRocketData.csv"
     
-    print(f"Wind: {config['windSpeed']} m/s @ {config['windAngle']}°")
-    print(f"Launch: {config['railLength']}m rail @ {config['railAngle']}°")
-    print(f"Output: {config['outputFile']}\n")
     
     # =========================================================================
     # RUN SIMULATION
@@ -78,82 +70,40 @@ def main():
     
     sim.quickRun(config, outputFile=config["outputFile"])
     
-    print("-" * 70)
-    print("\n[OK] Simulation completed!")
-    print(f"Results saved to: {config['outputFile']}\n")
+    # =========================================================================
+    # OPTIONAL: VARIABILITY ANALYSIS (Uncomment to run)
+    # =========================================================================
+    
+    print("\nRunning variability analysis...")
+    param_dict = {
+         "massEmpty": [9.0, 10.0, 11.0],
+         "railAngle": randomizeParam(84.0, 1.0, 2)
+     }
+    sim.variabilityAnalysis(
+         baseConfig=config,
+         paramDict=param_dict,
+         compileFirst=False,
+         verbose=True,
+         n_jobs=None
+     )
     
     # =========================================================================
     # ANALYZE RESULTS
     # =========================================================================
+
     
-    print("="*70)
-    print("Flight Data Summary")
-    print("="*70 + "\n")
+    analyzer = FlightAnalyzer('rockets/myRocket/results/myRocketData.csv')
+    analyzer.plot("altitude","qInf")
+
+ 
+    var_analyzer = VariabilityAnalyzer('rockets/myRocket/results')
+
+ 
+    var_analyzer.loadAllSimulations('myRocketData_*.csv')
+
+    var_analyzer.plotComparison("massEmpty", "apogee", color_param= "railAngle",legend_position = "outside")
     
-    try:
-        analyzer = FlightAnalyzer(config["outputFile"])
-        print(f"Simulation time: {analyzer.df['time'].max():.2f} seconds")
-        print(f"Max altitude: {analyzer.df['altitude'].max():.2f} meters")
-        print(f"Max velocity: {analyzer.df['velocity'].max():.2f} m/s")
-        print(f"Max acceleration: {analyzer.df['acceleration'].max():.2f} m/s²\n")
-        
-    except Exception as e:
-        print(f"Could not load results: {e}\n")
-    
-    print("="*70)
-    print("Done!")
-    print("="*70 + "\n")
 
 
 if __name__ == "__main__":
-    main() 
-
-    # ============================================================================
-    # LAUNCH CONDITIONS
-    # ============================================================================
-    config["railLength"] = 6.0              # Launch rail length [m]
-    config["railAngle"] = 84.0              # Launch rail angle [degrees] (90° = vertical)
-
-    # Initial position in NED frame [m]
-    config["initialPosDown"] = 0.0          # Initial Down position [m] (0 = ground level)
-
-    # ============================================================================
-    # QUICK SIMULATION
-    # ============================================================================
- 
-    sim.quickRun(config, outputFile=config["outputFile"])
-
-    # ============================================================================
-    # VARIABILITY ANALYSIS WITH PARALLEL PROCESSING
-    # ============================================================================
-    
-    print("\n" + "="*70)
-    print("MY ROCKET - MONTE CARLO ANALYSIS")
-    print("="*70)
-    
-    # Define parameters to vary
-    param_dict = {
-        "emptyMass": randomizeParam(10.0, 0.50, 2),
-        "railAngle": randomizeParam(84.0, 1.0, 5)
-    }
-     
-    # Run the analysis
-    sim.variabilityAnalysis(
-        baseConfig=config,
-        paramDict=param_dict,
-        compileFirst=False,
-        verbose=True,
-        n_jobs=None  # Use all available cores
-    )
-    
-
-
-
-
-
-# ============================================================================
-# CRITICAL: Required for Windows multiprocessing
-# ============================================================================
-if __name__ == '__main__':
-    freeze_support()  # Required for Windows when creating executables
     main()

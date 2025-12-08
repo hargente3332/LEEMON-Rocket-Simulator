@@ -63,11 +63,8 @@ def main():
     config["initialPosDown"] = 0.0          # Initial altitude [m]
     
     # Output
-    config["outputFile"] = "rockets/viper/results/viperData.csv"
+
     
-    print(f"Wind: {config['windSpeed']} m/s @ {config['windAngle']}°")
-    print(f"Launch: {config['railLength']}m rail @ {config['railAngle']}°")
-    print(f"Output: {config['outputFile']}\n")
     
     # =========================================================================
     # RUN SIMULATION
@@ -78,53 +75,36 @@ def main():
     
     sim.quickRun(config, outputFile=config["outputFile"])
     
-    print("-" * 70)
-    print("\n[OK] Simulation completed!")
-    print(f"Results saved to: {config['outputFile']}\n")
-    
-    # =========================================================================
-    # ANALYZE RESULTS
-    # =========================================================================
-    
-    print("="*70)
-    print("Analyzing Results")
-    print("="*70 + "\n")
-    
-    try:
-        analyzer = FlightAnalyzer(config["outputFile"])
-        print(f"Flight data loaded successfully!")
-        print(f"Available data columns: {len(analyzer.df.columns)}")
-        print(f"Simulation time: {analyzer.df['time'].max():.2f} seconds")
-        print(f"Max altitude: {analyzer.df['altitude'].max():.2f} meters")
-        print(f"Max velocity: {analyzer.df['velocity'].max():.2f} m/s\n")
-        
-        # Optional: Create plots (uncomment to use)
-        # analyzer.plot("altitude", "velocity")
-        # analyzer.plot("time", "altitude")
-        
-    except Exception as e:
-        print(f"Could not load results: {e}\n")
-    
-    print("="*70)
-    print("Done!")
-    print("="*70 + "\n")
-    
+
     # =========================================================================
     # OPTIONAL: VARIABILITY ANALYSIS (Uncomment to run)
     # =========================================================================
     
-    # print("\nRunning variability analysis...")
-    # param_dict = {
-    #     "massEmpty": [9.0, 10.0, 11.0],
-    #     "railAngle": randomizeParam(84.0, 1.0, 2)
-    # }
-    # sim.variabilityAnalysis(
-    #     baseConfig=config,
-    #     paramDict=param_dict,
-    #     compileFirst=False,
-    #     verbose=True,
-    #     n_jobs=None
-    # )
+    param_dict = {
+         "massEmpty": [9.0, 10.0, 11.0],
+         "railAngle": randomizeParam(84.0, 1.0, 2)
+     }
+    sim.variabilityAnalysis(
+         baseConfig=config,
+         paramDict=param_dict,
+         compileFirst=False,
+         verbose=True,
+         n_jobs=None
+     )
+    
+    # =========================================================================
+    # ANALYZE RESULTS
+    # =========================================================================
+
+ 
+    var_analyzer = VariabilityAnalyzer('rockets/viper/results')
+
+ 
+    var_analyzer.loadAllSimulations('viperData_*.csv')
+
+
+    var_analyzer.plotComparison("massEmpty", "apogee", color_param= "railAngle",legend_position = "outside")
+    
 
 
 if __name__ == "__main__":
