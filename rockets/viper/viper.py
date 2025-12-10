@@ -4,10 +4,14 @@ Full Configuration Simulation with Parallel Processing Support
 Define ALL parameters here for your rocket simulation
 """
 
-from leemonSim import LEEMONSimulator, randomizeParam # type: ignore
-from leemonSim import FlightAnalyzer, VariabilityAnalyzer # type: ignore
-import os
+import sys
+from pathlib import Path
 from multiprocessing import freeze_support
+
+# Add LEEMON root to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+
+from leemon import LEEMONSimulator, FlightAnalyzer, VariabilityAnalyzer, randomizeParam
 
 def main():
     """
@@ -17,10 +21,8 @@ def main():
     # ============================================================================
     # CREATE SIMULATOR
     # ============================================================================
-    
-    ROOT_DIR = os.getcwd() # This is your Project Root
 
-    sim = LEEMONSimulator(ROOT_DIR)
+    sim = LEEMONSimulator()
 
     # ============================================================================
     # DEFINE ALL PARAMETERS
@@ -67,14 +69,14 @@ def main():
     )
     
     n_jobs = 1
- # Cargar datos de un solo vuelo
+    # Cargar datos de un solo vuelo
     analyzer = FlightAnalyzer('rockets/viper/results/viperData.csv')
     analyzer.plot("altitude","qInf")
 
- # Crear analizador de variabilidad
+    # Crear analizador de variabilidad
     var_analyzer = VariabilityAnalyzer('rockets/viper/results')
 
- # Cargar todas las simulaciones que coincidan con el patrón
+    # Cargar todas las simulaciones que coincidan con el patrón
     var_analyzer.loadAllSimulations('viperData_*.csv')
     var_analyzer.printComparisonTable()
 

@@ -8,36 +8,16 @@ import sys
 from pathlib import Path
 from multiprocessing import freeze_support
 
-# Auto-detect LEEMON root and add python folder to path
-def setup_leemon():
-    """Setup LEEMON paths automatically"""
-    script_dir = Path(__file__).parent.resolve()
-    
-    # Navigate up to find LEEMON root (contains bin/ and python/ folders)
-    current = script_dir
-    for _ in range(5):
-        if (current / "bin" / "leemon.exe").exists() and (current / "python").exists():
-            python_dir = current / "python"
-            if str(python_dir) not in sys.path:
-                sys.path.insert(0, str(python_dir))
-            return current
-        current = current.parent
-    
-    raise RuntimeError(
-        "Could not find LEEMON installation.\n"
-        "Ensure this script is inside the LEEMON-Portable/rockets/ folder."
-    )
+# Add LEEMON root to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-LEEMON_ROOT = setup_leemon()
-
-from leemonSim import LEEMONSimulator, randomizeParam
-from analysisTools import FlightAnalyzer
+from leemon import LEEMONSimulator, FlightAnalyzer, randomizeParam
 
 
 def main():
     """Main simulation function"""
     
-    sim = LEEMONSimulator(project_root=LEEMON_ROOT)
+    sim = LEEMONSimulator()
     
     # =========================================================================
     # LOAD CONFIGURATION
@@ -62,10 +42,9 @@ def main():
     # =========================================================================
     # ANALYZE RESULTS
     # =========================================================================
-    output_file = LEEMON_ROOT / config.get("outputFile", "rockets/myRocket/results/flightData.csv")
-    if output_file.exists():
-        analyzer = FlightAnalyzer(str(output_file))
-        analyzer.printSummary()
+    output_file = config.get("outputFile", "rockets/myRocket/results/flightData.csv")
+    analyzer = FlightAnalyzer(output_file)
+    analyzer.printSummary()
     
     # =========================================================================
     # VARIABILITY ANALYSIS
