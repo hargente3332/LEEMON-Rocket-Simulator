@@ -16,7 +16,6 @@
 #include <vector>
 #include <sstream>
 #include <Eigen/Dense>
-#include "controller.h"
 
 /**
  * @class NoseCone
@@ -261,108 +260,6 @@ class Motor{
 };
 
 /**
- * @class Airbrakes
- * @brief Air braking system for controlled descent
- * 
- * Defines air brake properties including maximum area, drag coefficient,
- * and extension control. Air brakes increase the rocket's effective drag
- * coefficient by deploying panels that increase the frontal area.
- * The additional drag is calculated as: cd_airbrakes * extension * Amax / Aref
- * where Aref is the rocket's cross-sectional area.
- * 
- * Can be controlled manually (fixed extension) or via a controller (PID, gain scheduling).
- */
-class Airbrakes {
-    public:
-    
-    /**
-     * @brief Constructor for Airbrakes class
-     * 
-     * @param maxArea Maximum air brake area when fully deployed [m²]
-     * @param cd Drag coefficient of the air brakes
-     */
-    Airbrakes(double maxArea, double cd){
-        this->maxArea = maxArea;
-        this->cd = cd;
-        this->extension = 0.0;
-        this->controller = nullptr;
-        this->useController = false;
-    }
-    
-    /**
-     * @brief Default constructor
-     */
-    Airbrakes();
-
-    double maxArea;     ///< Maximum air brake area [m²]
-    double cd;          ///< Air brake drag coefficient
-    double extension;   ///< Extension fraction (0 = retracted, 1 = fully deployed)
-    
-    Controller* controller;  ///< Optional controller for active control
-    bool useController;      ///< Flag indicating if controller is active
-    
-    /**
-     * @brief Sets the air brake extension manually
-     * 
-     * @param ext Extension fraction between 0 and 1
-     */
-    void setExtension(double ext){
-        extension = std::max(0.0, std::min(1.0, ext));
-    }
-    
-    /**
-     * @brief Gets current air brake extension
-     * 
-     * @return double Current extension fraction (0-1)
-     */
-    double getExtension() const {
-        return extension;
-    }
-    
-    /**
-     * @brief Adds a controller to the air brakes
-     * 
-     * @param ctrl Pointer to controller object
-     */
-    void addController(Controller* ctrl){
-        this->controller = ctrl;
-        this->useController = (ctrl != nullptr && ctrl->enabled);
-    }
-    
-    /**
-     * @brief Updates air brake extension using controller
-     * 
-     * @param dt Time step [s]
-     * @param stateMap Map of current state variables
-     */
-    void updateWithController(double dt, const std::map<ControlVariable, double>& stateMap){
-        if (useController && controller != nullptr) {
-            // Get current value of controlled variable
-            auto it = stateMap.find(controller->controlledVar);
-            if (it != stateMap.end()) {
-                double currentValue = it->second;
-                double newExtension = controller->compute(currentValue, dt, stateMap);
-                setExtension(newExtension);
-            }
-        }
-    }
-    
-    /**
-     * @brief Computes additional drag coefficient contribution
-     * 
-     * Calculates the extra Cd added by the air brakes based on their
-     * extension and area relative to rocket reference area.
-     * 
-     * @param Aref Rocket reference area (cross-sectional area) [m²]
-     * @return double Additional drag coefficient
-     */
-    double getAdditionalCd(double Aref){
-        if (Aref <= 0.0) return 0.0;
-        return cd * extension * maxArea / Aref;
-    }
-};
-
-/**
  * @class Parachute
  * @brief Parachute recovery system
  * 
@@ -550,7 +447,6 @@ class Rocket{
         this->xcgEmpty = xcgEmpty;
         this->hasDrogue = false;
         this->hasMain = false;
-        this->hasAirbrakes = false;
         loadDragData();
     }
 
@@ -564,11 +460,9 @@ class Rocket{
     NoseCone noseCone;       ///< Nose cone component
     Parachute drogueChute;   ///< Drogue parachute (deploys at apogee)
     Parachute mainChute;     ///< Main parachute (deploys at altitude)
-    Airbrakes airbrakes;     ///< Air brakes system
 
     bool hasDrogue;          ///< Whether rocket has drogue parachute
     bool hasMain;            ///< Whether rocket has main parachute
-    bool hasAirbrakes;       ///< Whether rocket has air brakes
 
     double cna;              ///< Total normal force coefficient derivative [1/rad]
     double xcp;              ///< Total center of pressure location [m from nose]
@@ -630,19 +524,6 @@ class Rocket{
     void addMainParachute(Parachute &parachute){
         this->mainChute = parachute;
         this->hasMain = true;
-    }
-    
-    /**
-     * @brief Adds air brakes to the rocket
-     * 
-     * Air brakes provide active control of descent rate by increasing drag.
-     * Extension can be controlled during flight via the airbrakes member.
-     * 
-     * @param airbrakes Airbrakes object configured with max area and Cd
-     */
-    void addAirbrakes(Airbrakes &airbrakes){
-        this->airbrakes = airbrakes;
-        this->hasAirbrakes = true;
     }
 
     /**

@@ -1,6 +1,11 @@
 # LEEMON Rocket Simulator 🚀🍋
 
 <p align="center">
+  <img src="docs/leemon_banner.jpg" alt="LEEMON Logo" width="2000"/>
+</p>
+
+
+<p align="center">
   <strong>Professional Rocket Flight Simulator</strong><br>
   6-DOF Trajectory Analysis | Monte Carlo Simulations | Parallel Processing
 </p>

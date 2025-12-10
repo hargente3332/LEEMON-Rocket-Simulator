@@ -64,16 +64,6 @@ powerOnDrag = rockets/myRocket/data/CDon.csv
 xcgEmpty = 1.13
 
 # =============================================================================
-# AIR BRAKES (OPTIONAL)
-# =============================================================================
-# Air brakes increase drag by deploying panels to control descent rate
-# Additional drag: cd_airbrakes * extension * maxArea / rocketArea
-useAirbrakes = true
-airbrakeMaxArea = 0.015        # Maximum air brake area [m²]
-airbrakeCd = 1.5               # Drag coefficient of air brakes
-airbrakeExtension = 0.0        # Extension: 0.0 (retracted) to 1.0 (deployed)
-
-# =============================================================================
 # SIMULATION PARAMETERS
 # =============================================================================
 stopAtApogee = false
