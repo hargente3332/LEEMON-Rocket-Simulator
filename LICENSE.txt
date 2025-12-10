@@ -1,28 +1,44 @@
-LEEMON - SOFTWARE LICENSE AGREEMENT
+LEEMON V2 - SOFTWARE LICENSE AGREEMENT
 
-Copyright (c) 2024 LEEM UPM. All rights reserved.
-
-TERMS AND CONDITIONS:
+Copyright © 2024 Hugo Argente. All rights reserved.
 
 1. LICENSE GRANT
-   This software is licensed, not sold. You are granted a non-exclusive,
-   non-transferable license to use this software.
+   You are granted a non-exclusive, non-transferable license to use
+   LEEMON V2 for rocket flight simulations and analysis.
 
-2. RESTRICTIONS
+2. PERMITTED USES
+   ✓ Run simulations for personal or commercial projects
+   ✓ Create and modify configuration files
+   ✓ Publish results and papers based on simulations
+   ✓ Use in educational and research contexts
+
+3. RESTRICTIONS
    You may NOT:
-   - Decompile, reverse engineer, or disassemble the software
-   - Distribute, sublicense, or transfer the software
-   - Remove or modify any copyright notices
-   - Use the software for illegal purposes
+   ✗ Decompile, reverse engineer, or disassemble the software
+   ✗ Redistribute the software or any part of it
+   ✗ Remove or modify copyright notices
+   ✗ Extract or reuse the compiled modules (.pyc files)
+   ✗ Use for illegal purposes
 
-3. OWNERSHIP
-   All intellectual property rights remain with LEEM UPM.
-   The compiled modules (.pyc) and executable (.exe) are proprietary.
+4. INTELLECTUAL PROPERTY
+   All source code, algorithms, and compiled modules remain the
+   exclusive property of Hugo Argente. The .pyc files and executable
+   are protected by copyright and trade secret laws.
 
-4. WARRANTY DISCLAIMER
-   This software is provided "AS IS" without warranty of any kind.
+5. NO WARRANTY
+   This software is provided "AS IS" without warranty of any kind,
+   express or implied. Use at your own risk.
 
-5. LIMITATION OF LIABILITY
-   The author shall not be liable for any damages arising from use.
+6. LIMITATION OF LIABILITY
+   In no event shall the author be liable for any damages arising
+   from the use of this software.
 
-For support or licensing inquiries: [hugo.argente25@gmail.com]
+7. TERMINATION
+   This license is effective until terminated. Your rights will
+   terminate automatically if you fail to comply with these terms.
+
+For licensing inquiries or commercial agreements:
+Email: hugo.argente25@gmail.com
+
+LEEM - Laboratorio de Estructuras Espaciales y Mecánicas
+Universidad Politécnica de Madrid (UPM)

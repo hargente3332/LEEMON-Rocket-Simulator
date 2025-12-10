@@ -1,0 +1,24 @@
+# PID Controller Configuration for Air Brakes
+# This controller maintains zero vertical velocity (hover at apogee)
+
+controllerType = PID
+
+# PID Gains (ajustados para apogeo ~1000m)
+Kp = 0.3
+Ki = 0.05
+Kd = 0.15
+
+# Controlled Variable (what we're controlling)
+# Options: vertical_velocity, altitude, altitude_rate, roll_rate, pitch_rate, 
+#          yaw_rate, angle_of_attack, velocity_magnitude, mach_number, dynamic_pressure
+controlledVariable = vertical_velocity
+
+# Reference Signal
+referenceType = static
+referenceValue = 0.0        # Target: zero vertical velocity
+
+# Controller Settings
+enabled = true
+outputMin = 0.0             # Minimum air brake extension (fully retracted)
+outputMax = 1.0             # Maximum air brake extension (fully deployed)
+integralLimit = 1.0         # Anti-windup limit for integral term
