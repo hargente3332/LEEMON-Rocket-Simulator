@@ -1,10 +1,6 @@
 # LEEMON Rocket Simulator 🚀🍋
 
 <p align="center">
-  <img src="docs/leemon_banner.jpg" alt="LEEMON Logo" width="2000"/>
-</p>
-
-<p align="center">
   <strong>Professional Rocket Flight Simulator</strong><br>
   6-DOF Trajectory Analysis | Monte Carlo Simulations | Parallel Processing
 </p>
@@ -32,7 +28,7 @@
 
 ```bash
 # Navigate to your LEEMON folder
-cd LEEMON_Rocket_Simulator
+cd LEEMON-Rocket-Simulator
 
 # Run the example simulation
 python rockets/myRocket/mySimulation.py
@@ -77,44 +73,30 @@ python rockets/my_new_rocket/mySimulation.py
 ## 📁 Project Structure
 
 ```
-LEEMON_Rocket_Simulator/
-├── 📄 leemon.py                      # Main interface (import this)
+LEEMON-Rocket-Simulator/
 ├── 📄 README.md
-├── 📄 README.txt
 ├── 📄 LICENSE.txt
 │
-├── 📁 bin/                           # Simulation engine (don't modify)
+├── 📁 build/                         # Simulation engine (compiled binaries)
 │   └── leemon.exe
 │
-├── 📁 lib/                           # Core libraries (don't modify)
-│   ├── leemonSim.pyc
-│   └── analysisTools.pyc
+├── 📁 python/                        # Python modules
+│   └── __init__.py
 │
 ├── 📁 rockets/                       # YOUR PROJECTS GO HERE
-│   └── myRocket/                     # Example project (includes all features)
+│   └── myRocket/                     # Example project
 │       ├── mySimulation.py           # Simulation script
 │       ├── example.txt               # Rocket configuration
-│       ├── example_pid.txt           # Example with PID controller
-│       ├── example_gain_scheduling.txt    # Example with gain scheduling
-│       ├── example_mpc.txt           # Example with MPC controller
-│       ├── example_airbrakes_fixed.txt    # Example with fixed airbrakes
-│       ├── example_parachute.txt     # Example with parachute only
-│       ├── test_controllers.py       # Script to compare all controllers
-│       ├── controllers/              # Controller configuration files
-│       │   ├── pid_hover.txt
-│       │   ├── pid_apogee_1000m.txt
-│       │   ├── gain_scheduling_altitude.txt
-│       │   ├── mpc_velocity_control.txt
-│       │   └── mpc_altitude_tracking.txt
 │       ├── data/                     # Aerodynamic data (Cd curves)
 │       │   ├── CDoff.csv
 │       │   └── CDon.csv
 │       ├── results/                  # Simulation outputs (CSV files)
 │       └── plots/                    # Generated plots (PNG files)
 │
+├── 📁 include/                       # C++ headers and Eigen library
+│
 ├── 📁 temp/                          # Temporary files
-└── 📁 docs/                          # Documentation
-    └── leemon_banner.jpg
+└── 📁 .git/                          # Git repository
 ```
 
 ---
@@ -135,7 +117,9 @@ cd rockets/falcon9
 
 ```bash
 # Create project folders
-mkdir -p rockets/my_rocket/{data,results,plots}
+mkdir -p rockets/my_rocket/data
+mkdir -p rockets/my_rocket/results
+mkdir -p rockets/my_rocket/plots
 
 # Copy configuration template
 cp rockets/myRocket/example.txt rockets/my_rocket/
@@ -180,11 +164,8 @@ motorFuelMass = 2.02     # Propellant mass [kg]
 The simulator will calculate constant thrust automatically.
 
 **Option 2: Custom Thrust Curve**
-```txt
-thrustFile = rockets/myRocket/data/Thrust.csv
-```
 
-Create a CSV file:
+Create a `Thrust.csv` file in your rocket's `data/` folder:
 ```csv
 time,thrust
 0.0,0
@@ -192,6 +173,11 @@ time,thrust
 1.0,1200
 2.0,800
 3.0,0
+```
+
+Then reference it in `example.txt`:
+```txt
+thrustFile = rockets/myRocket/data/Thrust.csv
 ```
 
 ### 🪂 Parachute System (Optional)
@@ -208,147 +194,6 @@ mainDiameter = 1.5       # [m]
 mainCd = 1.0
 mainDeployAltitude = 300.0  # [m]
 ```
-
-### 🛑 Air Brakes (Active Control)
-
-Air brakes are deployable surfaces that increase drag to control descent rate or target specific apogees.
-
-#### Basic Air Brakes (Fixed Extension)
-
-```txt
-# Air brakes configuration
-useAirbrakes = true
-airbrakeMaxArea = 0.015      # Maximum brake area [m²]
-airbrakeCd = 1.5             # Drag coefficient
-airbrakeExtension = 0.3      # Fixed extension: 0.0 (retracted) to 1.0 (fully deployed)
-```
-
-#### Active Control with Controllers
-
-Control airbrake extension dynamically during flight using different control algorithms:
-
-```txt
-# Air brakes with active controller
-useAirbrakes = true
-airbrakeMaxArea = 0.015
-airbrakeCd = 1.5
-airbrakeExtension = 0.0      # Initial extension (controller will adjust)
-airbrakeController = rockets/myRocket/controllers/pid_hover.txt
-```
-
-**Available Controllers:**
-
-1. **PID Controller** - Classic proportional-integral-derivative control
-   ```txt
-   # Example: pid_hover.txt
-   controllerType = PID
-   Kp = 0.3
-   Ki = 0.05
-   Kd = 0.15
-   controlledVariable = vertical_velocity
-   referenceValue = 0.0      # Target: hover at 0 m/s vertical velocity
-   ```
-
-2. **Gain Scheduling** - PID with gains that vary based on flight conditions (altitude, Mach, etc.)
-   ```txt
-   # Example: gain_scheduling_altitude.txt
-   controllerType = gainScheduling
-   schedulingVariable = altitude
-   schedulingPoints = 0, 400, 700, 900, 1000
-   KpSchedule = 0.1, 0.25, 0.4, 0.6, 0.8
-   KiSchedule = 0.02, 0.04, 0.08, 0.12, 0.15
-   KdSchedule = 0.05, 0.1, 0.15, 0.25, 0.35
-   ```
-
-3. **Model Predictive Control (MPC)** - Advanced controller that predicts future behavior
-   ```txt
-   # Example: mpc_velocity_control.txt
-   controllerType = MPC
-   A = 0.98                  # State transition coefficient
-   B = -0.15                 # Control effectiveness
-   predictionHorizon = 5     # Steps to predict ahead
-   Q = 10.0                  # State tracking weight
-   R = 0.5                   # Control effort weight
-   ```
-
-**Reference Signals (Target Values):**
-
-The reference (target value) can be either **static** (constant) or **dynamic** (varies during flight).
-
-1. **Static Reference** - Constant target throughout flight
-   ```txt
-   referenceType = static
-   referenceValue = -5.0     # Target: constant -5 m/s vertical velocity
-   ```
-
-2. **Breakpoint Reference** - Target varies based on another flight parameter
-   ```txt
-   # Example: Desired velocity changes with altitude
-   referenceType = breakpoint
-   breakpointVariable = altitude
-   referenceKeys = 0, 500, 1000, 1500, 2000      # Altitude points [m]
-   referenceValues = -50, -30, -10, 0, 0         # Desired velocity at each altitude [m/s]
-   ```
-   
-   This example means:
-   - At 0m altitude: target velocity = -50 m/s 
-   - At 500m: target = -30 m/s
-   - At 1000m: target = -10 m/s 
-   - At 1500m and above: target = 0 m/s 
-   - Values are interpolated between points
-
-**Complete Example with Dynamic Reference:**
-
-```txt
-# Controller with altitude-dependent target velocity
-controllerType = PID
-Kp = 0.5
-Ki = 0.1
-Kd = 0.2
-
-# Control vertical velocity
-controlledVariable = vertical_velocity
-
-# Reference changes with altitude (controlled descent profile)
-referenceType = breakpoint
-breakpointVariable = altitude
-referenceKeys = 0, 300, 800, 1200, 1500          # Altitude checkpoints [m]
-referenceValues = 5.0, 2.0, -5.0, -15.0, -25.0   # Target velocities [m/s]
-
-# At ground level (0m): gentle landing at +5 m/s (upward to cushion impact)
-# At 300m: slow descent at -2 m/s
-# At 800m: medium descent at -5 m/s  
-# At 1200m: faster descent at -15 m/s
-# At 1500m+: fast descent at -25 m/s
-
-outputMin = 0.0
-outputMax = 1.0
-enabled = true
-```
-
-**Controller Variables:**
-
-Available variables to control or use for scheduling:
-- `vertical_velocity` - Vertical velocity in NED frame [m/s]
-- `altitude` - Altitude above ground [m]
-- `altitude_rate` - Rate of altitude change [m/s]
-- `roll_rate`, `pitch_rate`, `yaw_rate` - Angular velocities [rad/s]
-- `angle_of_attack` - Angle of attack [rad]
-- `velocity_magnitude` - Total velocity [m/s]
-- `mach_number` - Mach number
-- `dynamic_pressure` - Dynamic pressure [Pa]
-
-**⚠️ IMPORTANT NOTICE - Controller Tuning:**
-
-The controller parameters provided in the examples (PID gains, MPC weights, etc.) are **NOT properly tuned** and serve only as **demonstration examples**. For real applications:
-
-- **Tune your controllers** for your specific rocket configuration
-- Start with conservative gains and increase gradually
-- Test in simulation before actual flight
-- Consider flight phase (ascent vs descent)
-- Account for aerodynamic changes with velocity and altitude
-
-Example controllers are in `rockets/myRocket/controllers/` for reference only.
 
 ### 🌬️ Environment & Launch
 
@@ -368,7 +213,7 @@ config["railAngle"] = 84.0      # [degrees] (90° = vertical)
 
 Place your drag coefficient files in `rockets/your_rocket/data/`:
 
-**CDoff.csv** (motor off):
+**CDoff.csv** (motor off - ballistic phase):
 ```csv
 mach,cd
 0.0,0.45
@@ -379,13 +224,18 @@ mach,cd
 2.0,0.55
 ```
 
-**CDon.csv** (motor on):
+**CDon.csv** (motor on - powered phase):
 ```csv
 mach,cd
 0.0,0.48
 0.5,0.49
-...
+0.8,0.54
+1.0,0.78
+1.5,0.65
+2.0,0.58
 ```
+
+The simulator automatically switches between these curves based on motor status.
 
 ---
 
@@ -487,7 +337,9 @@ analyzer.plotAttitude()  # Roll, pitch, yaw angles
 
 **Step 1: Create Project**
 ```bash
-mkdir -p rockets/hpr3000/{data,results,plots}
+mkdir -p rockets/hpr3000/data
+mkdir -p rockets/hpr3000/results
+mkdir -p rockets/hpr3000/plots
 cp rockets/myRocket/example.txt rockets/hpr3000/
 cp rockets/myRocket/mySimulation.py rockets/hpr3000/
 ```
@@ -496,9 +348,10 @@ cp rockets/myRocket/mySimulation.py rockets/hpr3000/
 ```txt
 diameter = 0.15
 massEmpty = 12.0
+motorFuelMass = 3.0
+# Use totalImpulse and burnTime for automatic thrust calculation
 totalImpulse = 5000.0
 burnTime = 3.5
-motorFuelMass = 3.0
 ```
 
 **Step 3: Run Initial Simulation**
@@ -519,6 +372,8 @@ sim.variabilityAnalysis(config, param_dict)
 
 **Step 5: Analyze Results**
 ```python
+var_analyzer = VariabilityAnalyzer('rockets/hpr3000/results')
+var_analyzer.loadAllSimulations('hpr3000Data_*.csv')
 var_analyzer.plotComparison('railAngle', 'apogee')
 ```
 
@@ -530,7 +385,7 @@ param_dict = {
     "windAngle": [0, 45, 90, 135, 180]
 }
 
-sim.variabilityAnalysis(config, param_dict, n_jobs=8)
+sim.variabilityAnalysis(config, param_dict, n_jobs=None)  # Uses all CPU cores
 ```
 
 ---
@@ -588,9 +443,10 @@ Add comments in `mySimulation.py`:
 ### Problem: Simulation doesn't run
 
 **Check:**
-1. Is `bin/leemon.exe` present?
+1. Is `build/leemon.exe` present?
 2. Are all paths in `example.txt` correct?
-3. Run with verbose: `sim.quickRun(config, verbose=True)`
+3. Should run without compiling, compileFirst = False
+4. Run with verbose: `sim.quickRun(config, verbose=True)`
 
 ### Problem: Unrealistic results
 
@@ -670,56 +526,21 @@ See `LICENSE.txt` for full terms.
 
 ## 🎉 Examples Gallery
 
-### Example 1: Basic Flight (example.txt)
-- **Configuration**: Standard rocket with parachutes
-- **Apogee**: 1944 m
-- **Max Velocity**: 229 m/s
-- **Features**: Drogue and main parachute deployment
+### Example 1: Basic Flight
+- **Apogee**: 3547 m
+- **Max Velocity**: 312 m/s
+- **Range**: 145 m
 
-### Example 2: Fixed Airbrakes (example_airbrakes_fixed.txt)
-- **Configuration**: 30% airbrake extension throughout flight
-- **Apogee**: 1353 m (30% reduction vs baseline)
-- **Max Velocity**: 212 m/s
-- **Purpose**: Test passive drag control effect
+### Example 2: High Wind (15 m/s)
+- **Apogee**: 3421 m
+- **Max Velocity**: 298 m/s
+- **Range**: 872 m (wind drift)
 
-### Example 3: PID Controller (example_pid.txt)
-- **Configuration**: PID controlling vertical velocity
-- **Apogee**: 871 m (controlled descent)
-- **Max Velocity**: 182 m/s
-- **Controller**: `pid_hover.txt` - targets 0 m/s vertical velocity
-
-### Example 4: Gain Scheduling (example_gain_scheduling.txt)
-- **Configuration**: PID gains vary with altitude
-- **Apogee**: 873 m
-- **Max Velocity**: 182 m/s
-- **Controller**: `gain_scheduling_altitude.txt` - altitude-dependent control
-
-### Example 5: MPC (example_mpc.txt)
-- **Configuration**: Model Predictive Control
-- **Controller**: `mpc_velocity_control.txt` - predicts future trajectory
-- **Features**: Optimizes control over prediction horizon
-
-### Example 6: 1000m Target (example_pid_1000m.txt)
-- **Configuration**: PID tuned for exact apogee target
-- **Target**: 1000 m
-- **Controller**: `pid_apogee_1000m.txt` - direct altitude control
-
-### Running Controller Comparison
-
-To test all controller types:
-
-```bash
-python rockets/myRocket/test_controllers.py
-```
-
-This script runs all examples and compares:
-- Baseline (no control)
-- Fixed airbrakes
-- PID velocity control
-- Gain scheduling
-- MPC
-
-**⚠️ Remember**: Example controllers are not tuned! Results will vary. Adjust gains for your specific rocket and objectives.
+### Example 3: Dual Deployment
+- **Apogee**: 4012 m
+- **Drogue Deploy**: 4012 m
+- **Main Deploy**: 300 m
+- **Landing Speed**: 4.2 m/s
 
 ---
 
