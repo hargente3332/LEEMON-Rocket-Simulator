@@ -1,104 +1,92 @@
 #!/usr/bin/env python3
 """
-My Rocket Simulation - Example Template
-Modify this file to create your own rocket simulation!
+LEEMON V2 - Rocket Simulation Script
+Works on any computer without modification!
 """
 
 import sys
-import os
-sys.path.append("python")
-
-from leemonSim import LEEMONSimulator, randomizeParam
-from leemonSim import FlightAnalyzer, VariabilityAnalyzer
-import os
+from pathlib import Path
 from multiprocessing import freeze_support
 
+# Auto-detect LEEMON root and add python folder to path
+def setup_leemon():
+    """Setup LEEMON paths automatically"""
+    script_dir = Path(__file__).parent.resolve()
+    
+    # Navigate up to find LEEMON root (contains bin/ and python/ folders)
+    current = script_dir
+    for _ in range(5):
+        if (current / "bin" / "leemon.exe").exists() and (current / "python").exists():
+            python_dir = current / "python"
+            if str(python_dir) not in sys.path:
+                sys.path.insert(0, str(python_dir))
+            return current
+        current = current.parent
+    
+    raise RuntimeError(
+        "Could not find LEEMON installation.\n"
+        "Ensure this script is inside the LEEMON-Portable/rockets/ folder."
+    )
+
+LEEMON_ROOT = setup_leemon()
+
+from leemonSim import LEEMONSimulator, randomizeParam
+from analysisTools import FlightAnalyzer
+
+
 def main():
-    """
-    Main function for your rocket simulation
-    """
+    """Main simulation function"""
     
-    # ============================================================================
-    # INITIALIZE SIMULATOR
-    # ============================================================================
-    ROOT_DIR = os.getcwd()
-    sim = LEEMONSimulator(ROOT_DIR)
-
-   # ============================================================================
+    sim = LEEMONSimulator(project_root=LEEMON_ROOT)
+    
+    # =========================================================================
     # LOAD CONFIGURATION
-    # ============================================================================
+    # =========================================================================
     config = sim.loadConfigFromFile("rockets/myRocket/example.txt")
-               
-    # Override specific parameters if needed
-    config["windSpeed"] = 0.0               
-    config["windAngle"] = 0.0 
-    config["railLength"] = 6.0              # Launch rail length [m]
-    config["railAngle"] = 84.0              # Launch rail angle [degrees)
-    config["initialPosDown"] = 0.0          # Initial Down position [m]
-
-    # ============================================================================
-    # RUN SINGLE SIMULATION
-    # ============================================================================
+    
+    # Override parameters
+    config["windSpeed"] = 5.0
+    config["windAngle"] = 20.0
+    config["railLength"] = 6.0
+    config["railAngle"] = 84.0
+    
+    # =========================================================================
+    # RUN SIMULATION
+    # =========================================================================
     print("\n" + "="*70)
-    print("MY ROCKET ROCKET - SINGLE FLIGHT SIMULATION")
+    print("RUNNING SIMULATION")
     print("="*70)
     
-    sim.quickRun(config, outputFile=config["outputFile"], compileFirst=False)
-
-    # ============================================================================
-    # RUN VARIABILITY ANALYSIS (Monte Carlo)
-    # ============================================================================
+    sim.quickRun(config, outputFile=config.get("outputFile", "rockets/myRocket/results/flightData.csv"))
+    
+    # =========================================================================
+    # ANALYZE RESULTS
+    # =========================================================================
+    output_file = LEEMON_ROOT / config.get("outputFile", "rockets/myRocket/results/flightData.csv")
+    if output_file.exists():
+        analyzer = FlightAnalyzer(str(output_file))
+        analyzer.printSummary()
+    
+    # =========================================================================
+    # VARIABILITY ANALYSIS
+    # =========================================================================
     print("\n" + "="*70)
-    print("MY ROCKET ROCKET - MONTE CARLO VARIABILITY ANALYSIS")
+    print("VARIABILITY ANALYSIS")
     print("="*70)
     
-    # Define parameters to vary
     param_dict = {
-        "massEmpty": [9.0, 10.0, 11.0, 15.0],
-        "railAngle": randomizeParam(84.0, 1.0, 2)
+        "massEmpty": randomizeParam(10.0, 0.50, 2),
+        "railAngle": randomizeParam(84.0, 1.0, 3)
     }
-     
-    # Run parallel analysis (uses all CPU cores)
+    
     sim.variabilityAnalysis(
         baseConfig=config,
         paramDict=param_dict,
-        compileFirst=False,  # USE PRE-COMPILED EXECUTABLE
         verbose=True,
-        n_jobs=None  # Use all available cores
+        n_jobs=None
     )
 
-    # ============================================================================
-    # ANALYZE RESULTS
-    # ============================================================================
-    print("\n" + "="*70)
-    print("ANALYZING RESULTS")
-    print("="*70)
-    
-    # Load single flight data
-    try:
-        analyzer = FlightAnalyzer('rockets/myRocket/results/myRocketData.csv')
-        analyzer.plot("altitude", "qInf")
-        print("✓ Single flight plot generated")
-    except Exception as e:
-        print(f"Warning: Could not plot single flight: {e}")
 
-    # Load variability analysis data
-    try:
-        var_analyzer = VariabilityAnalyzer('rockets/myRocket/results')
-        var_analyzer.loadAllSimulations('myRocketData_*.csv')
-        var_analyzer.printComparisonTable()
-        var_analyzer.plotComparison("massEmpty", "apogee", color_param="railAngle", 
-                                   legend_position="outside")
-        print("✓ Variability analysis plots generated")
-    except Exception as e:
-        print(f"Warning: Could not generate analysis plots: {e}")
-
-
-
-
-# ============================================================================
-# CRITICAL: Required for Windows multiprocessing
-# ============================================================================
 if __name__ == '__main__':
     freeze_support()
     main()

@@ -1,7 +1,5 @@
-# LEEMON V2 Configuration File
-# =============================================================================
-# This file demonstrates both motor thrust configuration modes
-# =============================================================================
+# Example: PID Controller for 1000m Apogee Target
+# Direct altitude control
 
 # =============================================================================
 # ROCKET GEOMETRY AND MASS PROPERTIES
@@ -16,7 +14,6 @@ inertiaEmptyZ = 3.0
 # =============================================================================
 # NOSE CONE
 # =============================================================================
-# Options: ogive, conical, parabolic
 noseType = ogive
 noseLength = 0.33
 noseDiameter = 0.13
@@ -48,9 +45,8 @@ motorInertiaFullZ = 0.0
 # =============================================================================
 # MOTOR THRUST CONFIGURATION
 # =============================================================================
-
-totalImpulse = 3000.0          # Total impulse [N·s]
-burnTime = 3.0                  # Burn duration [s]
+totalImpulse = 3000.0
+burnTime = 3.0
 
 # =============================================================================
 # DRAG COEFFICIENTS
@@ -64,14 +60,13 @@ powerOnDrag = rockets/myRocket/data/CDon.csv
 xcgEmpty = 1.13
 
 # =============================================================================
-# AIR BRAKES (OPTIONAL)
+# AIR BRAKES WITH PID FOR 1000m TARGET
 # =============================================================================
-# Air brakes increase drag by deploying panels to control descent rate
-# Additional drag: cd_airbrakes * extension * maxArea / rocketArea
 useAirbrakes = true
-airbrakeMaxArea = 0.015        # Maximum air brake area [m²]
-airbrakeCd = 1.5               # Drag coefficient of air brakes
-airbrakeExtension = 0.0        # Extension: 0.0 (retracted) to 1.0 (deployed)
+airbrakeMaxArea = 0.015
+airbrakeCd = 1.5
+airbrakeExtension = 0.0
+airbrakeController = rockets/myRocket/controllers/pid_apogee_1000m.txt
 
 # =============================================================================
 # SIMULATION PARAMETERS
@@ -81,26 +76,22 @@ tFinal = 100.0
 dt = 0.01
 
 # =============================================================================
-# PARACHUTE CONFIGURATION (DUAL DEPLOYMENT)
+# PARACHUTE CONFIGURATION
 # =============================================================================
-
-# DROGUE PARACHUTE (deploys at apogee)
 useDrogue = true
-drogueDiameter = 0.5           # Drogue diameter [m]
-drogueCd = 0.75                # Drag coefficient (smaller for drogue)
-drogueDelay = 0.0              # Delay after apogee detection [s]
-drogueDeployTime = 0.5         # Time to fully deploy [s]
+drogueDiameter = 0.5
+drogueCd = 0.75
+drogueDelay = 0.0
+drogueDeployTime = 0.5
 
-# MAIN PARACHUTE (deploys at specified altitude)
 useMain = true
-mainDiameter = 1.5             # Main parachute diameter [m]
-mainCd = 1.0                   # Drag coefficient (larger for main)
-mainDelay = 0.0                # Delay after altitude trigger [s]
-mainDeployTime = 1.0           # Time to fully deploy [s]
-mainDeployAltitude = 300.0     # Deployment altitude [m AGL]
+mainDiameter = 1.5
+mainCd = 1.0
+mainDelay = 0.0
+mainDeployTime = 1.0
+mainDeployAltitude = 300.0
 
 # =============================================================================
 # OUTPUT
 # =============================================================================
-outputFile = rockets/myRocket/results/myRocketData.csv
-
+outputFile = rockets/myRocket/results/pid_1000m_test.csv

@@ -1,0 +1,25 @@
+# PID Controller for Exact 1000m Apogee
+# Directly controls altitude to reach target
+
+# Controller type
+controllerType = PID
+
+# PID Gains (tuned for 1000m apogee)
+Kp = 0.01
+Ki = 0.002
+Kd = 0.008
+
+# Anti-windup
+integralLimit = 0.5
+
+# Control constraints
+outputMin = 0.0
+outputMax = 1.0
+
+# Controlled variable: control altitude directly
+controlledVariable = altitude
+referenceType = static
+referenceValue = 1000.0       # Target: exactly 1000m
+
+# Enable controller
+enabled = true
