@@ -650,24 +650,6 @@ Use these for custom analysis in Excel, MATLAB, or Python.
 
 ---
 
-## 📄 License
-
-This software is licensed for commercial use.
-
-**Restrictions:**
-- ❌ No redistribution
-- ❌ No reverse engineering
-- ❌ No source code modifications
-
-**Allowed:**
-- ✅ Create unlimited rocket simulations
-- ✅ Use for commercial projects
-- ✅ Publish results and papers
-
-See `LICENSE.txt` for full terms.
-
----
-
 ## 🎉 Examples Gallery
 
 ### Example 1: Basic Flight (example.txt)
