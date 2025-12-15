@@ -11,7 +11,7 @@ from multiprocessing import freeze_support
 # Add LEEMON root to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from leemon import LEEMONSimulator, FlightAnalyzer, randomizeParam
+from leemon import LEEMONSimulator, FlightAnalyzer, randomizeParam, VariabilityAnalyzer
 
 
 def main():
@@ -65,6 +65,19 @@ def main():
         n_jobs=None
     )
 
+    # Cargar datos de un solo vuelo
+    analyzer = FlightAnalyzer('rockets/myRocket/results/myRocketData.csv')
+    analyzer.plot("altitude","qInf")
+
+    # Crear analizador de variabilidad
+    var_analyzer = VariabilityAnalyzer('rockets/myRocket/results')
+    # Cargar todas las simulaciones que coincidan con el patrón
+    var_analyzer.loadAllSimulations('myRocketData_*.csv')
+    var_analyzer.printComparisonTable()
+
+    var_analyzer.plotComparison("massEmpty", "apogee", color_param= "railAngle",legend_position = "outside")
+
+    
 
 if __name__ == '__main__':
     freeze_support()

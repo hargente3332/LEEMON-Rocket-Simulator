@@ -9,6 +9,12 @@
   6-DOF Trajectory Analysis | Monte Carlo Simulations | Parallel Processing
 </p>
 
+## 📞 Support
+
+- 📧 **Email**: hugo.argente25@gmail.com
+- 📖 **Documentation**: Check `docs/` folder
+- 🐛 **Issues**: Report problems or request features
+
 ---
 
 ## 🎯 What is LEEMON?
@@ -639,14 +645,6 @@ All simulations save CSV files with these columns:
 | `mainDeployed` | Main parachute status | 0/1 |
 
 Use these for custom analysis in Excel, MATLAB, or Python.
-
----
-
-## 📞 Support
-
-- 📧 **Email**: hugo.argente25@gmail.com
-- 📖 **Documentation**: Check `docs/` folder
-- 🐛 **Issues**: Report problems or request features
 
 ---
 
